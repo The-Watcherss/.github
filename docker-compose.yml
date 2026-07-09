@@ -1,0 +1,64 @@
+version: "3.9"
+
+services:
+  db:
+    image: postgres:16
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: watchers_user
+      POSTGRES_PASSWORD: watchers_password_change_me
+      POSTGRES_DB: watchers_db
+    ports:
+      - "5432:5432"          # 팀원이 DBeaver 등으로 직접 붙고 싶으면 열어둠. 안 열어도 백엔드는 동작함
+    volumes:
+      - pgdata:/var/lib/postgresql/data   # 컨테이너 재시작/재생성해도 데이터 유지
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U watchers_user -d watchers_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  backend:
+    build: ./backend
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql://watchers_user:watchers_password_change_me@db:5432/watchers_db
+      GPU_SERVER_URL: http://<GPU서버IP>:9000
+      MCP_SERVER_URL: http://mcp:8100/sse     # 같은 docker network 안이라 서비스명으로 접근
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY}  # .env 파일에서 주입
+      STORAGE_ROOT: /app/storage/runs
+    ports:
+      - "8000:8000"           # 팀원 전체가 이 포트로 접속
+    volumes:
+      - storage_runs:/app/storage/runs   # best.pt, results.json 저장 위치, 컨테이너 재생성해도 유지
+
+  mcp:
+    build: ./mcp-backend
+    restart: unless-stopped
+    depends_on:
+      - backend
+    environment:
+      BACKEND_URL: http://backend:8000   # 같은 network 안이라 서비스명으로 접근
+    ports:
+      - "8100:8100"
+
+  pgadmin:
+    image: dpage/pgadmin4
+    restart: unless-stopped
+    depends_on:
+      - db
+    environment:
+      PGADMIN_DEFAULT_EMAIL: team@watchers.local
+      PGADMIN_DEFAULT_PASSWORD: pgadmin_password_change_me
+    ports:
+      - "5050:80"             # 브라우저로 http://<서버IP>:5050 접속해서 DB 조회 가능
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+
+volumes:
+  pgdata:
+  storage_runs:
+  pgadmin_data:
