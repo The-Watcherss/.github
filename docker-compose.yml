@@ -25,11 +25,12 @@ services:
       db:
         condition: service_healthy
     environment:
-      DATABASE_URL: postgresql://watchers_user:watchers_password_change_me@db:5432/watchers_db
-      GPU_SERVER_URL: http://<GPU서버IP>:9000
-      MCP_SERVER_URL: http://mcp:8100/sse     # 같은 docker network 안이라 서비스명으로 접근
-      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY}  # .env 파일에서 주입
-      STORAGE_ROOT: /app/storage/runs
+      DATABASE_URL: ${DATABASE_URL}
+      GPU_SERVER_URL: ${GPU_SERVER_URL}
+      MCP_SERVER_URL: ${MCP_SERVER_URL}     # 같은 docker network 안이라 서비스명으로 접근
+      OPENAI_API_KEY: ${OPENAI_API_KEY}     # .env 파일에서 주입
+      OPENAI_CHAT_MODEL: ${OPENAI_CHAT_MODEL}
+      STORAGE_ROOT: ${STORAGE_ROOT}
     ports:
       - "8000:8000"           # 팀원 전체가 이 포트로 접속
     volumes:
@@ -41,7 +42,7 @@ services:
     depends_on:
       - backend
     environment:
-      BACKEND_URL: http://backend:8000   # 같은 network 안이라 서비스명으로 접근
+      BACKEND_URL: ${BACKEND_URL}   # 같은 network 안이라 서비스명으로 접근
     ports:
       - "8100:8100"
 
@@ -51,7 +52,7 @@ services:
     depends_on:
       - db
     environment:
-      PGADMIN_DEFAULT_EMAIL: team@watchers.local
+      PGADMIN_DEFAULT_EMAIL: admin@watchers.com
       PGADMIN_DEFAULT_PASSWORD: pgadmin_password_change_me
     ports:
       - "5050:80"             # 브라우저로 http://<서버IP>:5050 접속해서 DB 조회 가능
