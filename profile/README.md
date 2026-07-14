@@ -41,11 +41,12 @@ GPU 1대를 `device=0`(라벨링) / `device=1`(학습)로 나눠서 두 작업�
 
 ## 📦 주요 레포지토리
 
-| 레포 | 설명 |
-|---|---|
+| 레포                                                    | 설명                                               |
+| ------------------------------------------------------- | -------------------------------------------------- |
 | [`watchers`](https://github.com/watchers-org/watchers) | 백엔드 · GPU 서버 · MCP 서버 · Docker 구성 전체 |
 
 레포 안 주요 문서:
+
 - `README.md` — 전체 구조, 실행 순서, 프로젝트별 격리 방식, 채팅-API 매핑
 - `DOCKER.md` — 팀 서버 Docker 공유 환경 세팅
 - `FRONTEND_API.md` — 프론트 연동용 전체 API 스펙
@@ -57,12 +58,12 @@ GPU 1대를 `device=0`(라벨링) / `device=1`(학습)로 나눠서 두 작업�
 
 ## 👥 팀원
 
-| 이름 | 역할 |
-|---|---|
-| 황영중 | |
-| 홍현경 | |
-| 김민혁 | |
-| 김다희 | |
+| 이름   | 역할 |
+| ------ | ---- |
+| 황영중 |      |
+| 홍현경 |      |
+| 김민혁 |      |
+| 김다희 |      |
 
 ---
 
@@ -171,14 +172,14 @@ python mcp_server.py
 
 ## 알아둘 것: 프로젝트마다 다른 것 vs 공통인 것
 
-| 프로젝트마다 다름 | 모든 프로젝트 공통 |
-| --- | --- |
-| 데이터셋 경로 (`Project.dataset_path`) | GPU 서버 주소, device 번호 |
-| 검출 클래스 종류/개수/순서 (`project_classes`) | MCP tool 목록 |
-| data.yaml 내용 (프로젝트별로 매번 생성) | Docker 이미지, DB 스키마 |
-| 학습 하이퍼파라미터 (요청마다 다르게 지정 가능) | 1차 학습 기본 pretrained 모델(`FIRST_TRAIN_BASE_MODEL`, 기본 `yolo26m.pt`) |
-| base_weights (1차/2차 자동 판단, 프로젝트별로 독립 추적) | |
-| 학습 결과 저장 폴더 | |
+| 프로젝트마다 다름                                        | 모든 프로젝트 공통                                                             |
+| -------------------------------------------------------- | ------------------------------------------------------------------------------ |
+| 데이터셋 경로 (`Project.dataset_path`)                 | GPU 서버 주소, device 번호                                                     |
+| 검출 클래스 종류/개수/순서 (`project_classes`)         | MCP tool 목록                                                                  |
+| data.yaml 내용 (프로젝트별로 매번 생성)                  | Docker 이미지, DB 스키마                                                       |
+| 학습 하이퍼파라미터 (요청마다 다르게 지정 가능)          | 1차 학습 기본 pretrained 모델(`FIRST_TRAIN_BASE_MODEL`, 기본 `yolo26m.pt`) |
+| base_weights (1차/2차 자동 판단, 프로젝트별로 독립 추적) |                                                                                |
+| 학습 결과 저장 폴더                                      |                                                                                |
 
 **학습 결과 저장 폴더도 프로젝트별로 분리됨**:
 
@@ -230,22 +231,22 @@ names:
 학습이 완료될 때마다(`POST /training/report` 콜백 시점) 프로젝트 내 순번으로 `version`이 자동 부여됨
 (1차 완료 → version=1, 2차 완료 → version=2 ...). 관련 엔드포인트:
 
-| 엔드포인트 | 설명 |
-| --- | --- |
-| `GET /projects/{project_id}/models` | 이 프로젝트의 다운로드 가능한 버전 목록 (완료된 것만) |
-| `GET /projects/{project_id}/models/{version}/pt` | 버전 번호로 바로 다운로드 (`best_v2.pt`) |
-| `GET /models/{run_id}/pt` | run_id로 다운로드 (파일명은 버전 있으면 `best_v{n}.pt`) |
+| 엔드포인트                                         | 설명                                                     |
+| -------------------------------------------------- | -------------------------------------------------------- |
+| `GET /projects/{project_id}/models`              | 이 프로젝트의 다운로드 가능한 버전 목록 (완료된 것만)    |
+| `GET /projects/{project_id}/models/{version}/pt` | 버전 번호로 바로 다운로드 (`best_v2.pt`)               |
+| `GET /models/{run_id}/pt`                        | run_id로 다운로드 (파일명은 버전 있으면`best_v{n}.pt`) |
 
 채팅에서는 MCP의 `list_model_versions(project_id)` / `get_model_download_info(project_id, version)` tool로 동일하게 처리됨.
 
 ## 기획안 5개 엔드포인트 ↔ 채팅 트리거 매핑
 
-| 사용자가 채팅에 이렇게 물으면 | MCP tool | 백엔드 엔드포인트 |
-| --- | --- | --- |
-| "라벨링 현황 어때?" | `get_labeling_kpi` | `GET /labeling/kpi` |
-| "학습 이력 보여줘" | `get_training_history` | `GET /training/history` |
-| "N번 학습 상세히 보여줘" | `get_training_detail` | `GET /training/{id}` |
-| "학습 새로 돌려줘" | `start_training` | `POST /training/run` |
+| 사용자가 채팅에 이렇게 물으면                           | MCP tool                                             | 백엔드 엔드포인트                                          |
+| ------------------------------------------------------- | ---------------------------------------------------- | ---------------------------------------------------------- |
+| "라벨링 현황 어때?"                                     | `get_labeling_kpi`                                 | `GET /labeling/kpi`                                      |
+| "학습 이력 보여줘"                                      | `get_training_history`                             | `GET /training/history`                                  |
+| "N번 학습 상세히 보여줘"                                | `get_training_detail`                              | `GET /training/{id}`                                     |
+| "학습 새로 돌려줘"                                      | `start_training`                                   | `POST /training/run`                                     |
 | "다운받을 수 있는 모델 뭐 있어?" / "N차 버전 받고 싶어" | `list_model_versions`, `get_model_download_info` | `GET /projects/{id}/models`, `GET /models/{run_id}/pt` |
 
 5개 다 `mcp-backend/mcp_server.py`에 tool로 등록돼 있어서, 프론트 채팅창에서 자연어로 물어보면
